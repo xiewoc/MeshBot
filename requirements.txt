@@ -3,3 +3,4 @@ pypubsub
 asyncio
 aiohttp
 websockets
+python-dotenv

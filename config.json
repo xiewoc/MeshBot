@@ -35,6 +35,13 @@
         "kwargs": {
           "uri": "ws://localhost:9238"
         }
+      },
+      "openrouter": {
+        "module": "api.openrouter_api",
+        "class": "AsyncOpenRouterChatClient",
+        "kwargs": {
+          "app_name": "MeshBot"
+        }
       }
     }
   }
