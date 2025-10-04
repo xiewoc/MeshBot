@@ -73,45 +73,52 @@ This project also includes a JSON-style configuration example that mirrors the r
 
 ```json
 {
-		"system": {
-			"system_prompt": "You are an assistant. Reply concisely (under 200 characters).",
-			"platform": "websocket",
-			"max_response_length": 200,
-			"message_queue_timeout": 1
-		},
-		"clients": {
-			"ollama": {
-				"module": "api.ollama_api",
-				"class": "AsyncOllamaChatClient",
-				"kwargs": {
-					"default_model": "qwen2.5:7b"
-				}
-			},
-			"openai": {
-				"module": "api.openai_api",
-				"class": "AsyncOpenAIChatClient",
-				"kwargs": {
-					"api_key": "your-api-key",
-					"default_model": "gpt-3.5-turbo"
-				}
-			},
-			"deepseek": {
-				"module": "api.deepseek_api",
-				"class": "AsyncDeepSeekChatClient",
-				"kwargs": {
-					"api_key": "your-api-key",
-					"default_model": "deepseek-chat"
-				}
-			},
-			"websocket": {
-				"module": "platforms.ws_platform",
-				"class": "AsyncWebSocketsClient",
-				"kwargs": {
-					"uri": "ws://localhost:9238"
-				}
-			}
-		}
-	}
+    "system": {
+      "system_prompt": "你是一个助手,请用简洁的语言(小于200字符)回复。",
+      "platform": "websocket",
+      "max_response_length": 200,
+      "message_queue_timeout": 1
+    },
+    "clients": {
+      "ollama": {
+        "module": "api.ollama_api",
+        "class": "AsyncOllamaChatClient",
+        "kwargs": {
+          "default_model": "qwen2.5:7b"
+        }
+      },
+      "openai": {
+        "module": "api.openai_api",
+        "class": "AsyncOpenAIChatClient",
+        "kwargs": {
+          "api_key": "your-api-key",
+          "default_model": "gpt-3.5-turbo"
+        }
+      },
+      "deepseek": {
+        "module": "api.deepseek_api",
+        "class": "AsyncDeepSeekChatClient",
+        "kwargs": {
+          "api_key": "your-api-key",
+          "default_model": "deepseek-chat"
+        }
+      },
+      "websocket": {
+        "module": "platforms.ws_platform",
+        "class": "AsyncWebSocketsClient",
+        "kwargs": {
+          "uri": "ws://localhost:9238"
+        }
+      },
+      "openrouter": {
+        "module": "api.openrouter_api",
+        "class": "AsyncOpenRouterChatClient",
+        "kwargs": {
+          "app_name": "MeshBot"
+        }
+      }
+    }
+  }
 ```
 
 > [!IMPORTANT]
@@ -158,4 +165,5 @@ This project isn’t trying to be the smartest assistant — it’s a small, pri
 Wishing your Meshtastic node steady operation in the hills and wilds — may every reply be like a quietly lit signal. 📡💡
 
 Happy exploring! ✨
+
 
