@@ -108,6 +108,8 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
 
 >[!IMPORTANT]
 >请在使用`openai`, `deepseek`时将`your-api-key`改为你使用的api key
+>
+>如果你在使用OpenRouter，请参照[README_OPENROUTER](README_OPENROUTER.md)
 
 完全可以在树莓派 + TTGO T-Beam 上跑起来，边走边聊。
 
@@ -148,5 +150,6 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
 如果你也喜欢这种感觉，欢迎一起改进它。
 
 祝你的 Meshtastic 节点在山野间稳定运行，每一条回复，都像一束悄悄亮起的信号灯。📡💡
+
 
 探索愉快！✨
