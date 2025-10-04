@@ -71,7 +71,9 @@ def create_ai_client(platform: str):
         return client_class(**kwargs)
 
     except (ImportError, AttributeError, KeyError) as e:
-        logger.error(f"无法创建 AI 客户端 ({platform}): {type(e).__name__} - {e}，回退到 Ollama")
+        logger.error(
+            f"无法创建 AI 客户端 ({platform}): {type(e).__name__} - {e}，回退到 Ollama"
+        )
         try:
             from api.ollama_api import AsyncOllamaChatClient
             return AsyncOllamaChatClient(default_model="qwen2.5:7b")
@@ -115,7 +117,9 @@ class MeshAIBot:
                 models = await self.client.get_models()
                 if models:
                     model_names = [m.get('name', '未知') for m in models]
-                    logger.info(f"✅ 可用 AI 模型: {model_names}")
+                    logger.info(
+                        f"✅ 可用 AI 模型: {model_names}"
+                    )
                 else:
                     logger.warning("⚠️ 未找到可用模型，请检查服务")
         except Exception as e:
@@ -185,13 +189,21 @@ class MeshAIBot:
         message_type = decoded.get('portnum', '未知类型')
 
         if message_type == 'TEXT_MESSAGE_APP' and to_id == self._node_id:
-            return self._process_text_message(packet, from_id, from_id_hex, to_id, decoded)
+            return self._process_text_message(
+                packet, from_id, from_id_hex, to_id, decoded
+            )
         elif message_type == 'POSITION_APP':
             self._process_position_message(packet, from_id)
         return None
 
-    def _process_text_message(self, packet: Dict[str, Any], from_id: str, 
-                              from_id_hex: str, to_id: str, decoded: Dict[str, Any]) -> Optional[Tuple]:
+    def _process_text_message(
+        self,
+        packet: Dict[str, Any],
+        from_id: str,
+        from_id_hex: str,
+        to_id: str,
+        decoded: Dict[str, Any],
+    ) -> Optional[Tuple]:
         """处理文本消息"""
         text = decoded.get('text', '').strip()
         if not text:
@@ -209,18 +221,29 @@ class MeshAIBot:
         if isinstance(node_info, dict):
             long_name = node_info.get('user', {}).get('longName', '')
             if long_name:
-                logger.info(f"👤 节点 {from_id_hex} 名称: {long_name}")
+                logger.info(
+                    f"👤 节点 {from_id_hex} 名称: {long_name}"
+                )
             return long_name
         else:
             logger.warning(f"⚠️ 节点 {from_id_hex} 信息非字典类型")
             return ""
 
-    def _log_message_reception(self, from_id: str, long_name: str, text: str, packet: Dict[str, Any]) -> None:
+    def _log_message_reception(
+        self,
+        from_id: str,
+        long_name: str,
+        text: str,
+        packet: Dict[str, Any],
+    ) -> None:
         """记录消息日志"""
         rssi = packet.get('rxRssi')
         snr = packet.get('rxSnr')
         name_info = f"({long_name})" if long_name else ""
-        logger.info(f"📩 收到来自 {from_id}{name_info} 的消息: {text[:50]}{'...' if len(text) > 50 else ''}")
+        short_text = text[:50] + ('...' if len(text) > 50 else '')
+        logger.info(
+            f"📩 收到来自 {from_id}{name_info} 的消息: {short_text}"
+        )
         if rssi is not None:
             logger.debug(f"📶 RSSI: {rssi} dBm")
         if snr is not None:
@@ -237,16 +260,23 @@ class MeshAIBot:
             return
 
         # 始终记录非敏感信息
-        logger.info(f"📍 收到 {from_id} 的位置信息")
+        logger.info(
+            f"📍 收到 {from_id} 的位置信息"
+        )
 
         # 仅在 DEBUG 模式下记录详细坐标（CodeQL 更容易理解这种分离）
         if logger.isEnabledFor(logging.DEBUG):
             lat = pos['latitude']
             lon = pos['longitude']
             # 使用单独的日志语句，避免在 info 中拼接敏感数据
-            logger.debug(f"详细位置: {lat:.6f}, {lon:.6f}")
+            logger.debug(
+                f"详细位置: {lat:.6f}, {lon:.6f}"
+            )
 
-    def _parse_from_and_position(self, packet: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def _parse_from_and_position(
+        self,
+        packet: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
         """解析位置数据包"""
         result = {}
         from_id_int = packet.get('from')
@@ -258,7 +288,7 @@ class MeshAIBot:
         result['node_id'] = {
             'decimal': from_id_int,
             'hex': node_hex,
-            'formatted': f"!{node_hex}"
+            'formatted': f"!{node_hex}",
         }
 
         decoded = packet.get('decoded')
@@ -269,7 +299,10 @@ class MeshAIBot:
 
         return result
 
-    def _extract_position_data(self, position: Optional[Dict]) -> Optional[Dict[str, Any]]:
+    def _extract_position_data(
+        self,
+        position: Optional[Dict],
+    ) -> Optional[Dict[str, Any]]:
         """提取位置字段"""
         if not position:
             logger.warning("⚠️ 位置数据为空")
@@ -307,7 +340,9 @@ class MeshAIBot:
         """调用 AI 并回复消息"""
         from_id, to_id, long_name, text = message_data
         try:
-            result = await self.client.chat(long_name, text, system_prompt=SYSTEM_PROMPT)
+            result = await self.client.chat(
+                long_name, text, system_prompt=SYSTEM_PROMPT
+            )
             if result["success"]:
                 response = result['response'][:MAX_RESPONSE_LENGTH]
                 logger.info(f"🤖 AI 回复: {response}")
@@ -316,8 +351,13 @@ class MeshAIBot:
                 interface.sendText(response, from_id)
             else:
                 error_msg = result.get('error', '未知错误')
-                logger.error(f"❌ AI 处理失败: {error_msg}")
-                interface.sendText(f"❌ 处理失败: {error_msg}", from_id)
+                logger.error(
+                    f"❌ AI 处理失败: {error_msg}"
+                )
+                interface.sendText(
+                    f"❌ 处理失败: {error_msg}",
+                    from_id
+                )
         except Exception as e:
             logger.error(f"❌ 消息处理异常: {e}")
             interface.sendText("❌ 处理异常，请稍后重试", from_id)
