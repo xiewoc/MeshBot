@@ -38,7 +38,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          uv run flake8 src/ tests/ main.py scripts/ \
+          uv run flake8 api/ platforms/ main.py scripts/ \
             --max-line-length=88 \
             --ignore=E203,W503 \
             --exclude=__pycache__,*.egg-info,build,dist,.git,.venv,venv,env,site-packages
