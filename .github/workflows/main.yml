@@ -24,21 +24,24 @@ jobs:
       - name: Create virtual environment
         run: uv venv
 
+      # Optional: Add .venv to environment so uv activates it automatically
+      - name: Add venv to environment
+        run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Install linters
-        run: |
-          source .venv/bin/activate
-          uv pip install black flake8
+        run: uv pip install black flake8
 
       - name: Check code formatting with Black
         run: |
-          source .venv/bin/activate
           echo "🔍 Checking code formats..."
-          black .
+          uv run black src/ tests/ main.py scripts/ --check --diff
 
       - name: Lint with flake8
         run: |
-          source .venv/bin/activate
-          flake8 . --exclude=venv,.git --max-line-length=88 --ignore=E203,W503
+          uv run flake8 src/ tests/ main.py scripts/ \
+            --max-line-length=88 \
+            --ignore=E203,W503 \
+            --exclude=__pycache__,*.egg-info,build,dist,.git,.venv,venv,env,site-packages
 
   test:
     runs-on: ubuntu-latest
@@ -58,16 +61,17 @@ jobs:
       - name: Create virtual environment
         run: uv venv
 
+      - name: Add venv to environment
+        run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
       - name: Install dependencies
         run: |
-          source .venv/bin/activate
           uv pip install -r requirements.txt
           uv pip install pytest
 
       - name: Verify main module imports
         run: |
-          source .venv/bin/activate
-          python -c "import main; print('✅ Main module imported successfully')"
+          uv run python -c "import main; print('✅ Main module imported successfully')"
 
       - name: Setup environment file
         run: |
@@ -77,3 +81,7 @@ jobs:
           else
             echo "ℹ️ .env already exists, skipping copy"
           fi
+
+      - name: Run tests
+        run: |
+          uv run pytest -v
