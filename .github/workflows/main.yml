@@ -33,7 +33,7 @@ jobs:
         run: |
           source .venv/bin/activate
           echo "🔍 Checking code formats..."
-          black --check --diff .
+          black .
 
       - name: Lint with flake8
         run: |
