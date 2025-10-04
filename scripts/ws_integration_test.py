@@ -10,7 +10,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from platforms.ws_platform import AsyncWebSocketsClient
+# ✅ 添加 # noqa: E402 来忽略这一行的 flake8 检查
+from platforms.ws_platform import AsyncWebSocketsClient  # noqa: E402
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("ws_integration_test")
