@@ -11,10 +11,10 @@ load_dotenv()
 
 # 配置日志
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 class AsyncOpenRouterChatClient:
     """OpenRouter API 客户端，支持从 .env 读取配置"""
@@ -22,11 +22,14 @@ class AsyncOpenRouterChatClient:
     # 默认免费模型（如果 .env 未配置）
     DEFAULT_FREE_MODEL = "google/gemini-2.0-flash-exp:free"
 
-    def __init__(self, api_key: Optional[str] = None,
-                 base_url: str = "https://openrouter.ai/api/v1",
-                 default_model: Optional[str] = None,
-                 app_name: str = "MeshBot",
-                 site_url: Optional[str] = None):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        base_url: str = "https://openrouter.ai/api/v1",
+        default_model: Optional[str] = None,
+        app_name: str = "MeshBot",
+        site_url: Optional[str] = None,
+    ):
         """
         初始化 OpenRouter 客户端
 
@@ -44,9 +47,7 @@ class AsyncOpenRouterChatClient:
 
         # 模型选择优先级：传入参数 > .env 配置 > 默认免费模型
         self.default_model = (
-            default_model or
-            os.getenv("OPENROUTER_MODEL") or
-            self.DEFAULT_FREE_MODEL
+            default_model or os.getenv("OPENROUTER_MODEL") or self.DEFAULT_FREE_MODEL
         )
 
         self.app_name = app_name
@@ -67,9 +68,11 @@ class AsyncOpenRouterChatClient:
             self.session = aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(ssl=True),
                 timeout=aiohttp.ClientTimeout(total=120),
-                headers=self._get_headers()
+                headers=self._get_headers(),
             )
-            self.logger.info(f"✅ OpenRouter 客户端已初始化，模型: {self.default_model}")
+            self.logger.info(
+                f"✅ OpenRouter 客户端已初始化，模型: {self.default_model}"
+            )
 
     def _get_headers(self) -> Dict[str, str]:
         """获取请求头"""
@@ -91,9 +94,16 @@ class AsyncOpenRouterChatClient:
             await self.session.close()
             self.logger.info("🔌 OpenRouter 客户端已关闭")
 
-    async def chat(self, user_name: str, message: str, model: Optional[str] = None,
-                  system_prompt: Optional[str] = None, temperature: float = 0.7,
-                  max_tokens: Optional[int] = None, stream: bool = False) -> Dict[str, Any]:
+    async def chat(
+        self,
+        user_name: str,
+        message: str,
+        model: Optional[str] = None,
+        system_prompt: Optional[str] = None,
+        temperature: float = 0.7,
+        max_tokens: Optional[int] = None,
+        stream: bool = False,
+    ) -> Dict[str, Any]:
         """
         发送聊天请求
 
@@ -118,7 +128,11 @@ class AsyncOpenRouterChatClient:
 
                 if self.session is None:
                     self.logger.error("❌ aiohttp.ClientSession 未初始化")
-                    return {"success": False, "error": "客户端未初始化", "response": None}
+                    return {
+                        "success": False,
+                        "error": "客户端未初始化",
+                        "response": None,
+                    }
 
                 model = model or self.default_model
                 message = f"{user_name}:{message}"
@@ -128,16 +142,16 @@ class AsyncOpenRouterChatClient:
                     "model": model,
                     "messages": messages,
                     "temperature": max(0.1, min(2.0, temperature)),
-                    "stream": stream
+                    "stream": stream,
                 }
 
                 # 可选参数
                 if max_tokens is not None:
                     payload["max_tokens"] = max(1, min(8000, max_tokens))
 
-                async with self.session.post(f"{self.base_url}/chat/completions",
-                                           json=payload) as resp:
-
+                async with self.session.post(
+                    f"{self.base_url}/chat/completions", json=payload
+                ) as resp:
                     if resp.status == 200:
                         if stream:
                             return await self._handle_stream_response(resp)
@@ -145,24 +159,40 @@ class AsyncOpenRouterChatClient:
                             return await self._handle_normal_response(resp, message)
                     else:
                         error_data = await self._parse_error_response(resp)
-                        self.logger.error(f"❌ OpenRouter API错误: {resp.status} - {error_data}")
+                        self.logger.error(
+                            f"❌ OpenRouter API错误: {resp.status} - {error_data}"
+                        )
                         return {
                             "success": False,
                             "error": f"API错误: {resp.status} - {error_data}",
-                            "response": None
+                            "response": None,
                         }
 
             except aiohttp.ClientError as e:
                 self.logger.error(f"❌ 网络请求失败: {e}")
-                return {"success": False, "error": f"网络错误: {str(e)}", "response": None}
+                return {
+                    "success": False,
+                    "error": f"网络错误: {str(e)}",
+                    "response": None,
+                }
             except asyncio.TimeoutError as e:
                 self.logger.error(f"⏱️ 请求超时: {e}")
-                return {"success": False, "error": f"请求超时: {str(e)}", "response": None}
+                return {
+                    "success": False,
+                    "error": f"请求超时: {str(e)}",
+                    "response": None,
+                }
             except Exception as e:
                 self.logger.error(f"❌ 聊天处理异常: {e}")
-                return {"success": False, "error": f"处理异常: {str(e)}", "response": None}
+                return {
+                    "success": False,
+                    "error": f"处理异常: {str(e)}",
+                    "response": None,
+                }
 
-    async def _handle_normal_response(self, resp: aiohttp.ClientResponse, user_message: str) -> Dict[str, Any]:
+    async def _handle_normal_response(
+        self, resp: aiohttp.ClientResponse, user_message: str
+    ) -> Dict[str, Any]:
         """处理普通响应"""
         result = await resp.json()
         ai_response = result["choices"][0]["message"]["content"]
@@ -180,43 +210,43 @@ class AsyncOpenRouterChatClient:
             "response": ai_response,
             "usage": result.get("usage"),
             "finish_reason": result["choices"][0].get("finish_reason"),
-            "metadata": openrouter_metadata
+            "metadata": openrouter_metadata,
         }
 
-    async def _handle_stream_response(self, resp: aiohttp.ClientResponse) -> Dict[str, Any]:
+    async def _handle_stream_response(
+        self, resp: aiohttp.ClientResponse
+    ) -> Dict[str, Any]:
         """处理流式响应"""
         full_response = ""
         async for line in resp.content:
-            line = line.decode('utf-8').strip()
-            if line.startswith('data: '):
+            line = line.decode("utf-8").strip()
+            if line.startswith("data: "):
                 data = line[6:]
-                if data == '[DONE]':
+                if data == "[DONE]":
                     break
                 try:
                     chunk = json.loads(data)
-                    if 'choices' in chunk and chunk['choices']:
-                        delta = chunk['choices'][0].get('delta', {})
-                        if 'content' in delta:
-                            content = delta['content']
+                    if "choices" in chunk and chunk["choices"]:
+                        delta = chunk["choices"][0].get("delta", {})
+                        if "content" in delta:
+                            content = delta["content"]
                             full_response += content
                 except json.JSONDecodeError:
                     continue
 
-        return {
-            "success": True,
-            "response": full_response,
-            "stream": True
-        }
+        return {"success": True, "response": full_response, "stream": True}
 
     async def _parse_error_response(self, resp: aiohttp.ClientResponse) -> str:
         """解析错误响应"""
         try:
             error_data = await resp.json()
             return error_data.get("error", {}).get("message", await resp.text())
-        except:
+        except Exception:
             return await resp.text()
 
-    def _build_messages(self, message: str, system_prompt: Optional[str]) -> List[Dict[str, str]]:
+    def _build_messages(
+        self, message: str, system_prompt: Optional[str]
+    ) -> List[Dict[str, str]]:
         """构建消息列表"""
         messages = []
 
@@ -241,7 +271,9 @@ class AsyncOpenRouterChatClient:
         if len(self.conversation_history) > 20:
             self.conversation_history = self.conversation_history[-20:]
 
-        self.logger.debug(f"📝 对话历史更新，当前长度: {len(self.conversation_history)}")
+        self.logger.debug(
+            f"📝 对话历史更新，当前长度: {len(self.conversation_history)}"
+        )
 
     async def get_models(self) -> List[Dict[str, Any]]:
         """获取可用模型列表"""
