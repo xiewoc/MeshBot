@@ -232,7 +232,12 @@ class MeshAIBot:
         if location_info:
             pos = location_info['position']
             if pos:
-                logger.info(f"📍 收到 {from_id} 的位置: {pos['latitude']:.6f}, {pos['longitude']:.6f}")
+                if logger.isEnabledFor(logging.DEBUG):
+                    lat = pos['latitude']
+                    lon = pos['longitude']
+                    logger.debug(f"📍 收到 {from_id} 的详细位置: {lat:.6f}°, {lon:.6f}°")
+                else:
+                    logger.info(f"📍 收到 {from_id} 的位置信息")
 
     def _parse_from_and_position(self, packet: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """解析位置数据包"""
@@ -271,7 +276,6 @@ class MeshAIBot:
             logger.error("❌ 缺失经纬度")
             return None
 
-        logger.info(f"🌍 位置: {lat:.6f}°N, {lon:.6f}°E, 海拔: {alt or 'N/A'}m")
         return {'latitude': lat, 'longitude': lon, 'altitude': alt}
 
     async def _process_message_queue(self) -> None:
