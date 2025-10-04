@@ -229,15 +229,22 @@ class MeshAIBot:
     def _process_position_message(self, packet: Dict[str, Any], from_id: str) -> None:
         """处理位置消息"""
         location_info = self._parse_from_and_position(packet)
-        if location_info:
-            pos = location_info['position']
-            if pos:
-                if logger.isEnabledFor(logging.DEBUG):
-                    lat = pos['latitude']
-                    lon = pos['longitude']
-                    logger.debug(f"📍 收到 {from_id} 的详细位置: {lat:.6f}°, {lon:.6f}°")
-                else:
-                    logger.info(f"📍 收到 {from_id} 的位置信息")
+        if not location_info:
+            return
+
+        pos = location_info.get('position')
+        if not pos:
+            return
+
+        # 始终记录非敏感信息
+        logger.info(f"📍 收到 {from_id} 的位置信息")
+
+        # 仅在 DEBUG 模式下记录详细坐标（CodeQL 更容易理解这种分离）
+        if logger.isEnabledFor(logging.DEBUG):
+            lat = pos['latitude']
+            lon = pos['longitude']
+            # 使用单独的日志语句，避免在 info 中拼接敏感数据
+            logger.debug(f"详细位置: {lat:.6f}, {lon:.6f}")
 
     def _parse_from_and_position(self, packet: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """解析位置数据包"""
