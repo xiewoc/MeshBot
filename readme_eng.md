@@ -116,6 +116,8 @@ This project also includes a JSON-style configuration example that mirrors the r
 
 > [!IMPORTANT]
 > When using `openai` or `deepseek`, replace `your-api-key` with your actual API key.
+>
+>if you are using OpenRouter for api usage ,please refer to [README_OPENROUTER](README_OPENROUTER.md)
 
 
 This project is small enough to run on a Raspberry Pi connected to a TTGO T-Beam or similar devices.
@@ -156,3 +158,4 @@ This project isn’t trying to be the smartest assistant — it’s a small, pri
 Wishing your Meshtastic node steady operation in the hills and wilds — may every reply be like a quietly lit signal. 📡💡
 
 Happy exploring! ✨
+
