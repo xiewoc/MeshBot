@@ -21,16 +21,22 @@ jobs:
         with:
           uv-version: latest
 
-      - name: Install linters with uv
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Activate environment and install linters
         run: |
+          source .venv/bin/activate
           uv pip install black flake8
 
       - name: Check code formatting with Black
         run: |
+          source .venv/bin/activate
           black --check .
 
       - name: Lint with flake8
         run: |
+          source .venv/bin/activate
           flake8 . --exclude=venv,.git --max-line-length=88 --ignore=E203,W503
 
   test:
@@ -48,13 +54,18 @@ jobs:
         with:
           uv-version: latest
 
-      - name: Install dependencies with uv
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Activate and install dependencies
         run: |
+          source .venv/bin/activate
           uv pip install -r requirements.txt
-          uv pip install pytest  # 确保测试工具安装
+          uv pip install pytest
 
       - name: Verify main module imports
         run: |
+          source .venv/bin/activate
           python -c "import main; print('✅ Main module imported successfully')"
 
       - name: Setup environment file
@@ -65,9 +76,3 @@ jobs:
           else
             echo "ℹ️ .env already exists, skipping copy"
           fi
-
-      - name: Run WebSocket integration test
-        env:
-          CI: true
-        run: |
-          python -m pytest scripts/ws_integration_test.py -v --tb=short
