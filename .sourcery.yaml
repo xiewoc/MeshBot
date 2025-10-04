@@ -3,7 +3,6 @@ version: 1
 
 # 忽略某些文件或目录（例如测试、遗留代码）
 ignore:
-  - mesh_bot.py                  # 忽略旧版 Ollama 机器人
   - scripts/ws_integration_test.py  # 忽略集成测试文件（可能包含长连接逻辑）
   - __pycache__/
   - *.pyc
@@ -34,4 +33,5 @@ rules:
 
 # 项目特定设置
 python:
+
   target_version: "3.10"        # 指定 Python 版本
