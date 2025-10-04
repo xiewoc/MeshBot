@@ -24,7 +24,7 @@ jobs:
       - name: Create virtual environment
         run: uv venv
 
-      - name: Activate environment and install linters
+      - name: Install linters
         run: |
           source .venv/bin/activate
           uv pip install black flake8
@@ -32,7 +32,8 @@ jobs:
       - name: Check code formatting with Black
         run: |
           source .venv/bin/activate
-          black --check .
+          echo "🔍 Checking code formats..."
+          black --check --diff .
 
       - name: Lint with flake8
         run: |
@@ -57,7 +58,7 @@ jobs:
       - name: Create virtual environment
         run: uv venv
 
-      - name: Activate and install dependencies
+      - name: Install dependencies
         run: |
           source .venv/bin/activate
           uv pip install -r requirements.txt
