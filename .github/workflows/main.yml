@@ -1,0 +1,50 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install flake8 black pytest  # 添加测试和格式化工具
+
+    - name: Check code formatting with Black
+      run: |
+        black --check .
+
+    - name: Lint with flake8
+      run: |
+        flake8 . --exclude=venv,.git --max-line-length=88 --ignore=E203,W503
+
+    - name: Setup environment file
+      run: |
+        cp .env.example .env || echo "Created .env from .env.example"
+
+    # 设置环境变量 CI=true，供代码判断
+    - name: Run WebSocket integration test (mocked/safe)
+      env:
+        CI: true   # 关键：告诉代码当前在 CI 环境中
+      run: |
+        python -m pytest scripts/ws_integration_test.py -v --tb=short
+
+    - name: Check main module imports
+      run: |
+        python -c "import main; print('Main module imported successfully')"
