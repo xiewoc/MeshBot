@@ -66,7 +66,7 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
 ```json
 {
     "system": {
-      "system_prompt": "你是一个助手，请用简洁的语言（小于200字符）回复。",
+      "system_prompt": "你是一个助手,请用简洁的语言(小于200字符)回复。",
       "platform": "websocket",
       "max_response_length": 200,
       "message_queue_timeout": 1
@@ -100,6 +100,13 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
         "class": "AsyncWebSocketsClient",
         "kwargs": {
           "uri": "ws://localhost:9238"
+        }
+      },
+      "openrouter": {
+        "module": "api.openrouter_api",
+        "class": "AsyncOpenRouterChatClient",
+        "kwargs": {
+          "app_name": "MeshBot"
         }
       }
     }
@@ -153,3 +160,4 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
 
 
 探索愉快！✨
+
