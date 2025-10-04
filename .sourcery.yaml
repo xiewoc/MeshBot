@@ -1,0 +1,37 @@
+# .sourcery.yaml - Sourcery AI 配置文件
+version: 1
+
+# 忽略某些文件或目录（例如测试、遗留代码）
+ignore:
+  - mesh_bot.py                  # 忽略旧版 Ollama 机器人
+  - scripts/ws_integration_test.py  # 忽略集成测试文件（可能包含长连接逻辑）
+  - __pycache__/
+  - *.pyc
+
+# 自定义规则设置
+rules:
+  # 简化建议（如用列表推导式替代循环）
+  simplify:
+    enabled: true
+
+  # 拆分过长函数
+  split-function:
+    enabled: true
+    min-lines: 20               # 超过 20 行的函数提示拆分
+    min-extraction-lines: 5     # 至少提取 5 行作为新函数
+
+  # 使用 f-string 而不是 .format() 或 % 格式化
+  use-fstring:
+    enabled: true
+
+  # 删除未使用的变量
+  remove-unused-variable:
+    enabled: true
+
+  # 优先使用 pathlib 而不是 os.path（可选）
+  use-pathlib:
+    enabled: false  # 如果你还在用 os.path，可以先关闭
+
+# 项目特定设置
+python:
+  target_version: "3.10"        # 指定 Python 版本
