@@ -25,7 +25,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 MeshBot/
 ├── main.py                     # Main entry point - unified bot implementation
-├── mesh_bot.py                 # Legacy standalone bot (Ollama-only)
 ├── config.json                 # AI client and system configuration
 ├── .env                        # Environment variables (API keys, model configs)
 ├── .env.example                # Environment variables template
@@ -325,3 +324,4 @@ ollama list
 - **YAML Configuration**: Replace JSON config with YAML
 - **Multi-Node Support**: Handle group messages or multi-bot networks
 - **Voice Integration**: TTS/STT for voice-based mesh interactions
+
