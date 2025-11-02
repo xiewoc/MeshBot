@@ -69,46 +69,51 @@ jobs:
           uv pip install -r requirements.txt
           uv pip install pytest
             
-      - name: Create test configuration
-        run: |
-          # 使用 Python 创建配置，确保格式正确
-          uv run python -c "
-            import json
-            import os
-            
-            config = {
-                'platform': 'ollama',
-                'api_keys': {
-                    'openai': 'test-key',
-                    'deepseek': 'test-key', 
-                    'openrouter': 'test-key',
-                    'gemini': 'test-key',
-                    'claude': 'test-key',
-                    'siliconflow': 'test-key',
-                    'fastapi': 'test-token'
-                },
-                'model_settings': {
-                    'ollama': 'qwen2.5:7b',
-                    'openai': 'gpt-3.5-turbo',
-                    'deepseek': 'deepseek-chat',
-                    'openrouter': 'openai/gpt-3.5-turbo',
-                    'gemini': 'gemini-pro',
-                    'claude': 'claude-3-sonnet-20240229',
-                    'siliconflow': 'deepseek-ai/DeepSeek-V2-Chat',
-                    'fastapi': 'fastapi-default'
-                },
-                'service_urls': {
-                    'websockets': 'ws://localhost:9238',
-                    'fastapi': 'http://127.0.0.1:8000'
-                }
-            }
-            
-            with open('config.json', 'w', encoding='utf-8') as f:
-                json.dump(config, f, indent=2, ensure_ascii=False)
-            
-            print('✅ Created config.json for testing')
-            print(f'File exists: {os.path.exists(\"config.json\")}')
-            "
+          - name: Create test configuration
+          run: |
+            cat << 'EOF' > create_config.py
+          import json
+          import os
+          
+          config = {
+              'platform': 'ollama',
+              'api_keys': {
+                  'openai': 'test-key',
+                  'deepseek': 'test-key', 
+                  'openrouter': 'test-key',
+                  'gemini': 'test-key',
+                  'claude': 'test-key',
+                  'siliconflow': 'test-key',
+                  'fastapi': 'test-token'
+              },
+              'model_settings': {
+                  'ollama': 'qwen2.5:7b',
+                  'openai': 'gpt-3.5-turbo',
+                  'deepseek': 'deepseek-chat',
+                  'openrouter': 'openai/gpt-3.5-turbo',
+                  'gemini': 'gemini-pro',
+                  'claude': 'claude-3-sonnet-20240229',
+                  'siliconflow': 'deepseek-ai/DeepSeek-V2-Chat',
+                  'fastapi': 'fastapi-default'
+              },
+              'service_urls': {
+                  'websockets': 'ws://localhost:9238',
+                  'fastapi': 'http://127.0.0.1:8000'
+              }
+          }
+          
+          try:
+              with open('config.json', 'w', encoding='utf-8') as f:
+                  json.dump(config, f, indent=2, ensure_ascii=False)
+              print('✅ Created config.json for testing')
+              print(f'File exists: {os.path.exists("config.json")}')
+          except Exception as e:
+              print(f'❌ Failed to write config.json: {e}')
+              exit(1)
+          EOF
+          
+              uv run python create_config.py
+              rm create_config.py
             
       - name: Verify main module imports
         run: |
