@@ -176,6 +176,7 @@ class AsyncFastAPIChatClient:
                     return {"success": True, "response": full_response}
                 else:
                     error_text = await resp.text()
+                    self.logger.error(f"发生错误: {error_text}")
                     return {
                         "success": False, 
                         "error": f"HTTP错误: {resp.status}", 

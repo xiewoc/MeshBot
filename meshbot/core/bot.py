@@ -8,7 +8,7 @@ import meshtastic
 import meshtastic.serial_interface
 from pubsub import pub
 
-from meshbot.config.config_loader import PLATFORM, MESSAGE_QUEUE_TIMEOUT, load_config, get_ai_client_config
+from meshbot.config.config_loader import PLATFORM, MESSAGE_QUEUE_TIMEOUT, load_config
 from meshbot.utils.ai_client_factory import create_ai_client
 from meshbot.core.message_processor import MessageProcessor
 

@@ -2,7 +2,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, List
 import uvicorn
 import logging
 import asyncio
@@ -45,7 +45,7 @@ class ChatResponse(BaseModel):
 async def generate_ai_response(user_name: str, message: str, system_prompt: Optional[str] = None) -> str:
     """模拟 AI 响应生成"""
     # 这里可以集成真实的 AI 模型
-    prompt = system_prompt or "你是一个有用的助手。"
+    prompt = system_prompt or "你是一个有用的助手。" #noqa
     
     # 模拟处理时间
     await asyncio.sleep(0.1)
