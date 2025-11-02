@@ -18,16 +18,7 @@
 - 用本地 AI 模型生成简短回复
 - 把回答原路传回，就像它一直在线等你
 
-所有处理在本地完成，隐私可控，无需依赖云端。
-
-## 📡 为什么做这个？
-
-Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对人。  
-我在想：能不能有一个“听得懂话”的节点？不复杂，也不聪明，但能回应。
-
-于是做了这个小东西——  
-它不会主动说话，也不参与群聊。  
-你找它，它就在。
+所有处理在本地完成，隐私可控。
 
 ## ⚙️ 技术实现
 
@@ -61,60 +52,39 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
 
 ```json
 {
-    "system": {
-      "system_prompt": "你是一个助手,请用简洁的语言(小于200字符)回复。",
-      "platform": "websocket",
-      "max_response_length": 200,
-      "message_queue_timeout": 1
-    },
-    "clients": {
-      "ollama": {
-        "module": "api.ollama_api",
-        "class": "AsyncOllamaChatClient",
-        "kwargs": {
-          "default_model": "qwen2.5:7b"
-        }
-      },
-      "openai": {
-        "module": "api.openai_api",
-        "class": "AsyncOpenAIChatClient",
-        "kwargs": {
-          "api_key": "your-api-key",
-          "default_model": "gpt-3.5-turbo"
-        }
-      },
-      "deepseek": {
-        "module": "api.deepseek_api",
-        "class": "AsyncDeepSeekChatClient",
-        "kwargs": {
-          "api_key": "your-api-key",
-          "default_model": "deepseek-chat"
-        }
-      },
-      "websocket": {
-        "module": "platforms.ws_platform",
-        "class": "AsyncWebSocketsClient",
-        "kwargs": {
-          "uri": "ws://localhost:9238"
-        }
-      },
-      "openrouter": {
-        "module": "api.openrouter_api",
-        "class": "AsyncOpenRouterChatClient",
-        "kwargs": {
-          "app_name": "MeshBot"
-        }
-      }
-    }
+  "platform": "ollama",
+  "api_keys": {
+    "openai": "your-openai-api-key",
+    "deepseek": "your-deepseek-api-key",
+    "openrouter": "your-openrouter-api-key",
+    "gemini": "your-gemini-api-key",
+    "claude": "your-claude-api-key",
+    "siliconflow": "your-siliconflow-api-key",
+    "fastapi": "your-fastapi-token"
+  },
+  "model_settings": {
+    "ollama": "qwen2.5:7b",
+    "openai": "gpt-3.5-turbo",
+    "deepseek": "deepseek-chat",
+    "openrouter": "openai/gpt-3.5-turbo",
+    "gemini": "gemini-pro",
+    "claude": "claude-3-sonnet-20240229",
+    "siliconflow": "deepseek-ai/DeepSeek-V2-Chat",
+    "fastapi": "fastapi-default"
+  },
+  "service_urls": {
+    "websockets": "ws://localhost:9238",
+    "fastapi": "http://127.0.0.1:8000"
   }
+}
 ```
 
 >[!IMPORTANT]
->请在使用`openai`, `deepseek`时将`your-api-key`改为你使用的api key
+>请在使用`openai`, `deepseek`等时将`your-api-key`改为你使用的api key
 >
 >如果你在使用OpenRouter，请参照[README_OPENROUTER](README_OPENROUTER.md)
 >
->若要接入 `AstrBot` ， 可以使用 [AstrBot适配器](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot)
+>若要接入 `AstrBot` ，可以使用 [AstrBot适配器](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot)
 
 完全可以在树莓派 + TTGO T-Beam 上跑起来，边走边聊。
 
@@ -141,15 +111,16 @@ Meshtastic 让我们能在没有网络的地方通信，但消息始终是人对
 
 ## 🎈当前版本 
 
-V 1.0.2
+V 1.0.3
 
-- 添加了句子分割，超过200 UTF-8字符后会拆分发送而不是直接切割
+- 重构了文件夹结构
+- 添加了`Gemini`, `SiliconFlow`, `Claude`和`Fastapi`的适配器
+- 重构了`config.json`
 
 ## 🌱 后续想法
 
 - 引入上下文记忆，让对话更连贯
 - 添加一个WebUI
-- 优化配置结构
 
 ## 🙏 写在最后
 

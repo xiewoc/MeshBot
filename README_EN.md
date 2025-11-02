@@ -1,120 +1,92 @@
 <div align="center">
 
-**English** | [ **简体中文** ](README.md)
+[**简体中文**](README.md) | **English**
 
 </div>
 
 # Mesh AI Assistant
 
-A small AI node quietly residing in the Mesh network.
-You send it a message, and it replies.
+A small AI node that quietly resides in the Mesh network.  
+You send it a message, and it replies with a sentence.
 
-Unobtrusive, offline, and serverless.
-Just for those times when you're in the mountains, in the wild, or somewhere without signal, you can still ask, "What do you think?" and receive an answer.
+Unobtrusive, offline, and serverless.  
+Just for those times when you're in the mountains, in the wild, or somewhere with no signal, and you can still ask, "What do you think?" and receive an answer.
 
 ## 🧩 What Can It Do?
 
-- Receive private messages sent to it (peer-to-peer)
-- Generate brief replies using a local AI model
-- Send the response back through the same path, as if it's always online waiting for you
+-   Receive private messages sent to it (peer-to-peer messages)
+-   Generate short replies using a local AI model
+-   Send the response back the same way, as if it's always online waiting for you
 
-All processing happens locally. Your privacy is maintained, with no dependency on the cloud.
-
-## 📡 Why Build This?
-
-Meshtastic enables communication in areas without networks, but the messages are always human-to-human.
-I wondered: could there be a node that "understands"? Not complex or overly intelligent, but capable of responding.
-
-So, this little project was born –
-It doesn't initiate conversations or participate in group chats.
-It's there when you need it.
+All processing is done locally, ensuring privacy and control.
 
 ## ⚙️ Technical Implementation
 
-- Uses Python to listen for serial port messages from the Meshtastic device
-- Extracts the content when a private message for this node is received
-- Calls a locally running Ollama service (or other AI interface)
-- Sends the generated reply back through the same network after creation
+-   Uses Python to listen for serial port messages from Meshtastic devices
+-   Extracts content when a private message for this node is received
+-   Calls a locally running Ollama service (or other AI interfaces)
+-   Sends the generated reply back through the same network
 
 ### How to Start
 
-1. **Start the Ollama Service**:
-   ```bash
-   ollama serve
-   ```
-   > This starts the Ollama background service, defaulting to port `11434`.
+1.  **Start the Ollama Service**:
+    ```bash
+    ollama serve
+    ```
+    > This starts the Ollama background service, listening on port `11434` by default.
 
-2. **(Optional) Pull a Model in Advance**:
-   ```bash
-   ollama pull qwen2.5:7b
-   ```
-   Or use other lightweight models like `phi3` or `tinyllama`.
+2.  (Optional) Download a model in advance:
+    ```bash
+    ollama pull qwen2.5:7b
+    ```
+    Or use other lightweight models like `phi3` or `tinyllama`.
 
-3. **Run the AI Node Program**:
-   ```bash
-   python main.py
-   ```
+3.  Run the AI node program:
+    ```bash
+    python main.py
+    ```
 
-> Note: Ollama will automatically download and load the model on the first request if it hasn't been pulled beforehand. Ensure your device has sufficient storage and memory.
+> Note: Ollama will automatically download and load the model on the first request (if not pulled in advance). Ensure your device has sufficient storage and memory.
 
 ### Current Configuration Example
 
 ```json
 {
-    "system": {
-      "system_prompt": "You are an assistant. Please reply concisely (less than 200 characters).",
-      "platform": "websocket",
-      "max_response_length": 200,
-      "message_queue_timeout": 1
-    },
-    "clients": {
-      "ollama": {
-        "module": "api.ollama_api",
-        "class": "AsyncOllamaChatClient",
-        "kwargs": {
-          "default_model": "qwen2.5:7b"
-        }
-      },
-      "openai": {
-        "module": "api.openai_api",
-        "class": "AsyncOpenAIChatClient",
-        "kwargs": {
-          "api_key": "your-api-key",
-          "default_model": "gpt-3.5-turbo"
-        }
-      },
-      "deepseek": {
-        "module": "api.deepseek_api",
-        "class": "AsyncDeepSeekChatClient",
-        "kwargs": {
-          "api_key": "your-api-key",
-          "default_model": "deepseek-chat"
-        }
-      },
-      "websocket": {
-        "module": "platforms.ws_platform",
-        "class": "AsyncWebSocketsClient",
-        "kwargs": {
-          "uri": "ws://localhost:9238"
-        }
-      },
-      "openrouter": {
-        "module": "api.openrouter_api",
-        "class": "AsyncOpenRouterChatClient",
-        "kwargs": {
-          "app_name": "MeshBot"
-        }
-      }
-    }
+  "platform": "ollama",
+  "api_keys": {
+    "openai": "your-openai-api-key",
+    "deepseek": "your-deepseek-api-key",
+    "openrouter": "your-openrouter-api-key",
+    "gemini": "your-gemini-api-key",
+    "claude": "your-claude-api-key",
+    "siliconflow": "your-siliconflow-api-key",
+    "fastapi": "your-fastapi-token"
+  },
+  "model_settings": {
+    "ollama": "qwen2.5:7b",
+    "openai": "gpt-3.5-turbo",
+    "deepseek": "deepseek-chat",
+    "openrouter": "openai/gpt-3.5-turbo",
+    "gemini": "gemini-pro",
+    "claude": "claude-3-sonnet-20240229",
+    "siliconflow": "deepseek-ai/DeepSeek-V2-Chat",
+    "fastapi": "fastapi-default"
+  },
+  "service_urls": {
+    "websockets": "ws://localhost:9238",
+    "fastapi": "http://127.0.0.1:8000"
   }
+}
 ```
 
->[!IMPORTANT]
->Remember to replace `your-api-key` with your actual API key when using `openai` or `deepseek`.
+> [!IMPORTANT]
+> Please replace `your-api-key` with your actual API key when using services like `openai`, `deepseek`, etc.
 >
->If you are using OpenRouter, please refer to [README_OPENROUTER](README_OPENROUTER.md)
+> If you are using OpenRouter, please refer to [README_OPENROUTER](README_OPENROUTER.md)
+>
+> To integrate with `AstrBot`, you can use the [AstrBot Adapter](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot)
 
-It runs perfectly on a Raspberry Pi + TTGO T-Beam – chat while you walk.
+It can easily run on a Raspberry Pi + TTGO T-Beam, allowing you to chat on the go.
 
 ## 🛠️ How to Use?
 
@@ -132,31 +104,33 @@ It runs perfectly on a Raspberry Pi + TTGO T-Beam – chat while you walk.
     ```bash
     python main.py
     ```
-6.  Send a private message to it from another device and wait for the reply.
+6.  Send a private message to it from another device and wait for a reply.
 
->[!IMPORTANT]
->Please pay attention to the working directory when running the main program; it must be run from within the project folder.
+> [!IMPORTANT]
+> Please pay attention to the runtime path when executing the main program; it must be run from within the project folder.
 
 ## 🎈 Current Version
 
-- Added APIs for `OpenAI` and `DeepSeek`, providing a `WebSockets` interface.
-- Optimized project structure.
-- Added support for integration with `AstrBot` using the [AstrBot Adapter](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot).
+V 1.0.3
+
+-   Refactored the folder structure
+-   Added adapters for `Gemini`, `SiliconFlow`, `Claude`, and `Fastapi`
+-   Refactored `config.json`
 
 ## 🌱 Future Ideas
 
-- Introduce contextual memory for more coherent conversations.
-- Add a WebUI.
+-   Introduce context memory for more coherent conversations
+-   Add a WebUI
 
 ## 🙏 Final Words
 
-This project isn't meant to replace anyone, nor is it trying to create a super-smart AI.
-It's just about leaving a responsive voice in those quiet places.
+This project isn't meant to replace anyone, nor is it about creating an overly intelligent AI.  
+It's just about leaving a voice that can respond to you in those quiet places.
 
-If you like this idea, you're welcome to help improve it.
+If you also appreciate this concept, you're welcome to help improve it.
 
-And appriciate all the contributers who contributed to this repo ,there's no way this repop thrive without your contribution.
+Simultaneously, thanks to the developers who have contributed to this project; we appreciate your support and efforts.
 
-May your Meshtastic nodes run stably in the mountains and wilds, where every reply is like a small signal light quietly turning on. 📡💡
+May your Meshtastic node run stably in the mountains and wilds, where every reply is like a quietly lit signal lamp. 📡💡
 
 Happy Exploring! ✨
