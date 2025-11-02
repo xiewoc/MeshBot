@@ -34,11 +34,11 @@ jobs:
       - name: Check code formatting with Black
         run: |
           echo "🔍 Checking code formats..."
-          uv run black main.py api/ platforms/ scripts/ .
+          uv run black main.py meshbot/ scripts/ .
 
       - name: Lint with flake8
         run: |
-          uv run flake8 api/ platforms/ main.py scripts/ \
+          uv run flake8 meshbot/ main.py scripts/ \
             --max-line-length=88 \
             --ignore=E203,W503,E501 \
             --exclude=__pycache__,*.egg-info,build,dist,.git,.venv,venv,env,site-packages
