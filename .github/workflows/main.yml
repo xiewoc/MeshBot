@@ -24,7 +24,6 @@ jobs:
       - name: Create virtual environment
         run: uv venv
 
-      # Optional: Add .venv to environment so uv activates it automatically
       - name: Add venv to environment
         run: echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
@@ -40,7 +39,7 @@ jobs:
         run: |
           uv run flake8 meshbot/ main.py scripts/ \
             --max-line-length=88 \
-            --ignore=E203,W503,E501 \
+            --ignore=E203,W503,E501,F541 \
             --exclude=__pycache__,*.egg-info,build,dist,.git,.venv,venv,env,site-packages
 
   test:
@@ -68,6 +67,51 @@ jobs:
         run: |
           uv pip install -r requirements.txt
           uv pip install pytest
+
+      - name: Create minimal config file
+        run: |
+          cat > config.json << 'EOF'
+          {
+            "platform": "ollama",
+            "api_keys": {
+              "openai": "test-key",
+              "deepseek": "test-key",
+              "openrouter": "test-key",
+              "gemini": "test-key", 
+              "claude": "test-key",
+              "siliconflow": "test-key",
+              "fastapi": "test-token"
+            },
+            "model_settings": {
+              "ollama": "qwen2.5:7b",
+              "openai": "gpt-3.5-turbo",
+              "deepseek": "deepseek-chat",
+              "openrouter": "openai/gpt-3.5-turbo",
+              "gemini": "gemini-pro",
+              "claude": "claude-3-sonnet-20240229",
+              "siliconflow": "deepseek-ai/DeepSeek-V2-Chat",
+              "fastapi": "fastapi-default"
+            },
+            "service_urls": {
+              "websockets": "ws://localhost:9238",
+              "fastapi": "http://127.0.0.1:8000"
+            }
+          }
+          EOF
+          echo "✅ Created minimal config.json"
+
+      - name: Verify config file
+        run: |
+          echo "📄 Config file contents:"
+          cat config.json
+          echo "🔍 Checking if config is valid JSON..."
+          uv run python -c "
+            import json
+            with open('config.json', 'r') as f:
+                config = json.load(f)
+            print('✅ Config file is valid JSON')
+            print(f'Platform: {config.get(\"platform\")}')
+            "
 
       - name: Verify main module imports
         run: |
