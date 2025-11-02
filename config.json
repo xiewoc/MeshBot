@@ -1,47 +1,26 @@
 {
-    "system": {
-      "system_prompt": "你是一个助手,请用简洁的语言(小于200字符)回复。",
-      "platform": "websocket",
-      "max_response_length": 200,
-      "message_queue_timeout": 1
-    },
-    "clients": {
-      "ollama": {
-        "module": "api.ollama_api",
-        "class": "AsyncOllamaChatClient",
-        "kwargs": {
-          "default_model": "qwen2.5:7b"
-        }
-      },
-      "openai": {
-        "module": "api.openai_api",
-        "class": "AsyncOpenAIChatClient",
-        "kwargs": {
-          "api_key": "your-api-key",
-          "default_model": "gpt-3.5-turbo"
-        }
-      },
-      "deepseek": {
-        "module": "api.deepseek_api",
-        "class": "AsyncDeepSeekChatClient",
-        "kwargs": {
-          "api_key": "your-api-key",
-          "default_model": "deepseek-chat"
-        }
-      },
-      "websocket": {
-        "module": "platforms.ws_platform",
-        "class": "AsyncWebSocketsClient",
-        "kwargs": {
-          "uri": "ws://localhost:9238"
-        }
-      },
-      "openrouter": {
-        "module": "api.openrouter_api",
-        "class": "AsyncOpenRouterChatClient",
-        "kwargs": {
-          "app_name": "MeshBot"
-        }
-      }
-    }
+  "platform": "ollama",
+  "api_keys": {
+    "openai": "your-openai-api-key",
+    "deepseek": "your-deepseek-api-key",
+    "openrouter": "your-openrouter-api-key",
+    "gemini": "your-gemini-api-key",
+    "claude": "your-claude-api-key",
+    "siliconflow": "your-siliconflow-api-key",
+    "fastapi": "your-fastapi-token"
+  },
+  "model_settings": {
+    "ollama": "qwen2.5:7b",
+    "openai": "gpt-3.5-turbo",
+    "deepseek": "deepseek-chat",
+    "openrouter": "openai/gpt-3.5-turbo",
+    "gemini": "gemini-pro",
+    "claude": "claude-3-sonnet-20240229",
+    "siliconflow": "deepseek-ai/DeepSeek-V2-Chat",
+    "fastapi": "fastapi-default"
+  },
+  "service_urls": {
+    "websockets": "ws://localhost:9238",
+    "fastapi": "http://127.0.0.1:8000"
   }
+}
