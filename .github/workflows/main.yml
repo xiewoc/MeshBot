@@ -117,8 +117,7 @@ jobs:
             
       - name: Verify main module imports
         run: |
-          # 先测试基本导入，再测试 main
-          uv run python -c "
+          cat << 'EOF' > verify_imports.py
             print('Testing imports...')
             try:
                 from meshbot.config.config_loader import load_config
@@ -126,12 +125,15 @@ jobs:
                 
                 import main
                 print('✅ main module imported successfully')
-                
             except Exception as e:
                 print(f'❌ Import failed: {e}')
                 import traceback
                 traceback.print_exc()
-            "
+                exit(1)
+            EOF
+            
+          uv run python verify_imports.py
+          rm verify_imports.py
             
       - name: Setup environment file
         run: |
