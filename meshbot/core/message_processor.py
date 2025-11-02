@@ -126,14 +126,14 @@ class MessageProcessor:
         """判断是否应该回复群发消息"""
         # 如果明确提及，总是回复
         if is_mention:
-            logger.info(f"🎯 检测到提及，将回复群发消息")
+            logger.info("🎯 检测到提及，将回复群发消息")
             return True
             
         # 检查消息是否包含问题或请求
         question_indicators = ["吗？", "?", "怎么办", "如何", "为什么", "什么", "怎样", "能不能", "是否可以"]
         for indicator in question_indicators:
             if indicator in text:
-                logger.info(f"❓ 检测到问题，将回复群发消息")
+                logger.info("❓ 检测到问题，将回复群发消息")
                 return True
                 
         # 对于其他群发消息，可以根据配置决定是否回复
@@ -265,7 +265,7 @@ class MessageProcessor:
         try:
             # 对于群发消息，检查是否需要回复
             if is_broadcast and not self._should_respond_to_broadcast(text, long_name, is_mention):
-                logger.info(f"⏭️  忽略群发消息（未触发回复条件）")
+                logger.info("⏭️  忽略群发消息（未触发回复条件）")
                 return
                 
             # 构建系统提示（针对群发消息添加额外上下文）
