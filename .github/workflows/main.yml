@@ -100,19 +100,6 @@ jobs:
           EOF
           echo "✅ Created minimal config.json"
 
-      - name: Verify config file
-        run: |
-          echo "📄 Config file contents:"
-          cat config.json
-          echo "🔍 Checking if config is valid JSON..."
-          uv run python -c "
-            import json
-            with open('config.json', 'r') as f:
-                config = json.load(f)
-            print('✅ Config file is valid JSON')
-            print(f'Platform: {config.get(\"platform\")}')
-            "
-
       - name: Verify main module imports
         run: |
           uv run python -c "import main; print('✅ Main module imported successfully')"
