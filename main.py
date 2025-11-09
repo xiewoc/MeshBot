@@ -4,9 +4,11 @@ import logging
 import os
 from pathlib import Path
 
-from meshbot.core.bot import MeshAIBot
+from meshbot.core.bot import MeshBot
 from meshbot.handlers.signal_handlers import setup_signal_handlers
+from meshbot.config.config_loader import load_config
 from meshbot.config.config_loader import create_example_config
+from meshbot.utils.localize import i18n
 
 # 日志配置
 logging.basicConfig(
@@ -14,7 +16,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-
 
 def check_config():
     """检查配置文件是否存在，如果不存在则创建示例"""
@@ -33,12 +34,13 @@ async def main() -> None:
     if not check_config():
         return
         
-    bot = MeshAIBot()
+    load_config()
+    bot = MeshBot()
     setup_signal_handlers(bot)
     try:
         await bot.run()
     except Exception as e:
-        logger.error(f"💥 机器人运行异常: {e}")
+        logger.error(i18n.gettext('bot_running_error',err = e))
     finally:
         await bot.shutdown()
 

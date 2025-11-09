@@ -1,58 +1,48 @@
 <div align="center">
 
-[**简体中文**](README.md) | **English**
+**English** | [ **简体中文** ](README.md)
 
 </div>
 
 # Mesh AI Assistant
 
-A small AI node that quietly resides in the Mesh network.  
-You send it a message, and it replies with a sentence.
+A small AI node quietly residing in the Mesh network.  
+You send it a message, and it replies.
 
 Unobtrusive, offline, and serverless.  
-Just for those times when you're in the mountains, in the wild, or somewhere with no signal, and you can still ask, "What do you think?" and receive an answer.
+Just for those times when you're in the mountains, the wilderness, or places with no signal – you can still ask, "What do you think?" and receive an answer.
 
 ## 🧩 What Can It Do?
 
--   Receive private messages sent to it (peer-to-peer messages)
--   Generate short replies using a local AI model
--   Send the response back the same way, as if it's always online waiting for you
+- Receive private messages sent to it (peer-to-peer)
+- Generate short replies using a local AI model
+- Send the response back through the same path, as if it's always online waiting for you
 
-All processing is done locally, ensuring privacy and control.
+All processing is done locally, ensuring privacy control.
 
 ## ⚙️ Technical Implementation
 
--   Uses Python to listen for serial port messages from Meshtastic devices
--   Extracts content when a private message for this node is received
--   Calls a locally running Ollama service (or other AI interfaces)
--   Sends the generated reply back through the same network
+- Uses Python to listen for serial port messages from Meshtastic devices
+- Extracts content when a private message for this node is received
+- Calls a locally running Ollama service (or other AI interface)
+- Sends the generated reply back through the same network
 
-### How to Start
-
-1.  **Start the Ollama Service**:
-    ```bash
-    ollama serve
-    ```
-    > This starts the Ollama background service, listening on port `11434` by default.
-
-2.  (Optional) Download a model in advance:
-    ```bash
-    ollama pull qwen2.5:7b
-    ```
-    Or use other lightweight models like `phi3` or `tinyllama`.
-
-3.  Run the AI node program:
-    ```bash
-    python main.py
-    ```
-
-> Note: Ollama will automatically download and load the model on the first request (if not pulled in advance). Ensure your device has sufficient storage and memory.
+## Technical Specifications
+| Connection | Serial Port |
+| ----- | -----|
+| Memory | Not Implemented |
+| LLM Tools | Not Implemented |
+| Language Support | Chinese, English, Japanese, French, Russian, Korean, Spanish, German |
+| Service Providers | OpenAI (and similar, e.g., DeepSeek, Ollama), web sockets, FastAPI |
 
 ### Current Configuration Example
 
 ```json
 {
   "platform": "ollama",
+  "localization":{
+      "language": "en"
+  },
   "api_keys": {
     "openai": "your-openai-api-key",
     "deepseek": "your-deepseek-api-key",
@@ -79,12 +69,12 @@ All processing is done locally, ensuring privacy and control.
 }
 ```
 
-> [!IMPORTANT]
-> Please replace `your-api-key` with your actual API key when using services like `openai`, `deepseek`, etc.
+>[!IMPORTANT]
+>Please replace `your-api-key` with your actual API key when using services like `openai`, `deepseek`, etc.
 >
-> If you are using OpenRouter, please refer to [README_OPENROUTER](README_OPENROUTER.md)
+>If you are using OpenRouter, please refer to [README_OPENROUTER](README_OPENROUTER.md)
 >
-> To integrate with `AstrBot`, you can use the [AstrBot Adapter](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot)
+>To integrate with `AstrBot`, you can use the [AstrBot Adapter](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot) (*Recommended*)
 
 It can easily run on a Raspberry Pi + TTGO T-Beam, allowing you to chat on the go.
 
@@ -100,37 +90,42 @@ It can easily run on a Raspberry Pi + TTGO T-Beam, allowing you to chat on the g
     ```bash
     ollama serve
     ```
+
+    > This starts the Ollama background service, listening on port `11434` by default.
+    >
+    > Note: Ollama will automatically download and load the model on the first request (if not pulled beforehand). Ensure the device has sufficient storage and memory.
+
 5.  Run the main program:
     ```bash
     python main.py
     ```
-6.  Send a private message to it from another device and wait for a reply.
+6.  Send a private message to it from another device and wait for the reply.
 
-> [!IMPORTANT]
-> Please pay attention to the runtime path when executing the main program; it must be run from within the project folder.
+>[!IMPORTANT]
+>Please pay attention to the working directory when running the main program; it must be within the project folder.
 
 ## 🎈 Current Version
 
-V 1.0.3
+V 1.0.3 - pre 1
 
--   Refactored the folder structure
--   Added adapters for `Gemini`, `SiliconFlow`, `Claude`, and `Fastapi`
--   Refactored `config.json`
+- Added `localization`, supporting `en`, `zh_CN`, `ru`, `jp`, `ko`, `es`, `de`
 
 ## 🌱 Future Ideas
 
--   Introduce context memory for more coherent conversations
--   Add a WebUI
+- Introduce context memory for more coherent conversations
+- Add a WebUI
+- Add LLM Tools
+- Optimize the `api` folder
 
 ## 🙏 Final Words
 
 This project isn't meant to replace anyone, nor is it about creating an overly intelligent AI.  
-It's just about leaving a voice that can respond to you in those quiet places.
+It's simply about leaving a voice that can respond to you in those quiet places.
 
 If you also appreciate this concept, you're welcome to help improve it.
 
-Simultaneously, thanks to the developers who have contributed to this project; we appreciate your support and efforts.
+Special thanks to the developers who have contributed to this project – we appreciate your support and dedication.
 
-May your Meshtastic node run stably in the mountains and wilds, where every reply is like a quietly lit signal lamp. 📡💡
+May your Meshtastic node run stably out in the wilds, where every reply is like a quietly lit signal lamp. 📡💡
 
 Happy Exploring! ✨

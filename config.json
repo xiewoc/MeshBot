@@ -1,5 +1,8 @@
 {
   "platform": "ollama",
+  "localization":{
+      "language": "zh_CN"
+  },
   "api_keys": {
     "openai": "your-openai-api-key",
     "deepseek": "your-deepseek-api-key",
