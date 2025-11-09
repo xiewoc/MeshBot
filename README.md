@@ -27,32 +27,22 @@
 - 调用本地运行的 Ollama 服务（或其他 AI 接口）
 - 生成回复后通过同一网络回传
 
-### 启动方式
-
-1. **启动 Ollama 服务**：
-   ```bash
-   ollama serve
-   ```
-   > 这会启动 Ollama 后台服务，默认监听 `11434` 端口。
-
-2. （可选）提前下载模型：
-   ```bash
-   ollama pull qwen2.5:7b
-   ```
-   或使用其他轻量模型如 `phi3`、`tinyllama`。
-
-3. 运行 AI 节点程序：
-   ```bash
-   python main.py
-   ```
-
-> 注：Ollama 在首次请求时会自动下载并加载模型（如果未提前 pull）。确保设备有足够存储和内存。
+## 技术规格
+| 连接方式 | 串口 |
+| ----- | -----|
+| 记忆 | 未实现|
+| LLM Tool | 未实现 |
+| 语言支持 | 中、英、日、法、俄、韩、西、德|
+| 服务提供商 | OpenAI（及类似，如：DeepSeek、Ollama）、web sockets、fastapi|
 
 ### 当前配置示例
 
 ```json
 {
   "platform": "ollama",
+  "localization":{
+      "language": "zh_CN"
+  },
   "api_keys": {
     "openai": "your-openai-api-key",
     "deepseek": "your-deepseek-api-key",
@@ -84,7 +74,7 @@
 >
 >如果你在使用OpenRouter，请参照[README_OPENROUTER](README_OPENROUTER.md)
 >
->若要接入 `AstrBot` ，可以使用 [AstrBot适配器](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot)
+>若要接入 `AstrBot` ，可以使用 [AstrBot适配器](https://github.com/xiewoc/astrbot_plugin_adapter_meshbot) (*推荐*)
 
 完全可以在树莓派 + TTGO T-Beam 上跑起来，边走边聊。
 
@@ -100,6 +90,11 @@
    ```bash
    ollama serve
    ```
+
+   > 这会启动 Ollama 后台服务，默认监听 `11434` 端口。
+   >
+   > 注：Ollama 在首次请求时会自动下载并加载模型（如果未提前 pull）。确保设备有足够存储和内存。
+
 5. 运行主程序：
    ```bash
    python main.py
@@ -111,16 +106,16 @@
 
 ## 🎈当前版本 
 
-V 1.0.3
+V 1.0.3 - pre 1
 
-- 重构了文件夹结构
-- 添加了`Gemini`, `SiliconFlow`, `Claude`和`Fastapi`的适配器
-- 重构了`config.json`
+- 添加了`localization` ,支持了 `en`, `zh_CN`, `ru`, `jp`, `ko`, `es`, `de`
 
 ## 🌱 后续想法
 
 - 引入上下文记忆，让对话更连贯
 - 添加一个WebUI
+- 添加LLM Tool
+- 优化`api`文件夹
 
 ## 🙏 写在最后
 

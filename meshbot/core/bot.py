@@ -8,21 +8,20 @@ import meshtastic
 import meshtastic.serial_interface
 from pubsub import pub
 
-from meshbot.config.config_loader import PLATFORM, MESSAGE_QUEUE_TIMEOUT, load_config
+from meshbot.config.config_loader import _config_manager
 from meshbot.utils.ai_client_factory import create_ai_client
 from meshbot.core.message_processor import MessageProcessor
+from meshbot.utils.localize import i18n
 
 logger = logging.getLogger(__name__)
 
 
-class MeshAIBot:
+class MeshBot:
     """Mesh AI 机器人主类，基于 Meshtastic 与 AI 交互"""
 
     def __init__(self):
-        # 先加载配置
-        load_config()
         
-        self.client = create_ai_client(PLATFORM)
+        self.client = create_ai_client(_config_manager.platform)
         self.interface: Optional[meshtastic.serial_interface.SerialInterface] = None
         self.running = False
         self.nodes = None
@@ -35,7 +34,7 @@ class MeshAIBot:
 
     async def initialize(self) -> None:
         """初始化机器人组件"""
-        logger.info("正在初始化 Mesh AI 机器人...")
+        logger.info(i18n.gettext('bot_initializing'))
         self._loop = asyncio.get_running_loop()
         await self._initialize_ai_client()
         await self._initialize_meshtastic()
@@ -49,14 +48,14 @@ class MeshAIBot:
             if hasattr(self.client, "get_models"):
                 models = await self.client.get_models()
                 if models:
-                    model_names = [m.get('name', '未知') for m in models]
+                    model_names = [m.get('name', i18n.gettext('unknown')) for m in models]
                     logger.info(
-                        f"✅ 可用 AI 模型: {model_names}"
+                        i18n.gettext('available_models', model_names=model_names)
                     )
                 else:
-                    logger.warning("⚠️ 未找到可用模型，请检查服务")
+                    logger.warning(i18n.gettext('no_models_warning'))
         except Exception as e:
-            logger.warning(f"⚠️ 获取模型列表失败: {e}")
+            logger.warning(i18n.gettext('model_list_failed', error=e))
 
     async def _initialize_meshtastic(self) -> None:
         """连接 Meshtastic 设备"""
@@ -67,12 +66,12 @@ class MeshAIBot:
             if node_info and 'num' in node_info:
                 self._node_id = node_info['num']
                 self.message_processor = MessageProcessor(self.nodes, self._node_id)
-                logger.info(f"✅ Meshtastic 连接成功，节点 ID: {self._node_id}")
+                logger.info(i18n.gettext('meshtastic_connected', node_id=self._node_id))
             else:
-                logger.error("❌ 无法获取 Meshtastic 节点信息")
-                raise RuntimeError("无法获取 Meshtastic 节点信息")
+                logger.error(i18n.gettext('node_info_error'))
+                raise RuntimeError(i18n.gettext('node_info_error'))
         except Exception as e:
-            logger.error(f"❌ Meshtastic 连接失败: {e}")
+            logger.error(i18n.gettext('meshtastic_connect_failed', error=e))
             raise
 
     def _register_event_handlers(self) -> None:
@@ -82,7 +81,7 @@ class MeshAIBot:
 
     def _on_connection(self, interface, topic=pub.AUTO_TOPIC) -> None:
         """连接建立事件"""
-        logger.info("🔗 Mesh 设备连接已建立")
+        logger.info(i18n.gettext('connection_established'))
 
     def _on_receive(self, packet: dict, interface) -> None:
         """接收消息事件（同步回调）"""
@@ -101,15 +100,15 @@ class MeshAIBot:
                 self._loop
             )
         else:
-            logger.warning("⚠️ 事件循环未运行，无法处理消息")
+            logger.warning(i18n.gettext('event_loop_not_running'))
 
     async def _queue_message(self, message_data: tuple, interface) -> None:
         """将消息加入异步队列"""
         try:
             await self._message_queue.put((message_data, interface))
-            logger.debug(f"📩 消息已入队，来自: {message_data[0]}")
+            logger.debug(i18n.gettext('message_queued', sender=message_data[0]))
         except Exception as e:
-            logger.error(f"❌ 消息入队失败: {e}")
+            logger.error(i18n.gettext('queue_failed', error=e))
 
     async def _process_message_queue(self) -> None:
         """持续处理消息队列"""
@@ -117,7 +116,7 @@ class MeshAIBot:
             try:
                 message_data, interface = await asyncio.wait_for(
                     self._message_queue.get(),
-                    timeout=MESSAGE_QUEUE_TIMEOUT
+                    timeout=_config_manager.message_queue_timeout
                 )
                 async with self._processing_lock:
                     if self.message_processor is not None:
@@ -130,19 +129,19 @@ class MeshAIBot:
             except asyncio.CancelledError:
                 break
             except Exception as e:
-                logger.error(f"❌ 消息队列处理异常: {e}")
+                logger.error(i18n.gettext('queue_processing_error', error=e))
 
     async def run(self) -> None:
         """启动机器人主循环"""
         self.running = True
         await self.initialize()
-        logger.info("🚀 Mesh AI 机器人已启动，按 Ctrl+C 退出...")
+        logger.info(i18n.gettext('bot_started'))
 
         try:
             while self.running:
                 await asyncio.sleep(1)
         except KeyboardInterrupt:
-            logger.info("🛑 收到中断信号，正在关闭...")
+            logger.info(i18n.gettext('interrupt_received'))
         finally:
             await self.shutdown()
 
@@ -151,13 +150,13 @@ class MeshAIBot:
         if not self.running:
             return
         self.running = False
-        logger.info("🔧 正在关闭 Mesh AI 机器人...")
+        logger.info(i18n.gettext('bot_shutting_down'))
 
         if self.interface:
             self.interface.close()
-            logger.info("🔌 Meshtastic 连接已关闭")
+            logger.info(i18n.gettext('meshtastic_closed'))
 
         await self.client.close()
-        logger.info("🧠 AI 客户端已关闭")
+        logger.info(i18n.gettext('ai_client_closed'))
 
         self._executor.shutdown(wait=False)

@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional, Tuple, List
 
 from meshbot.config.config_loader import get_system_prompt, get_max_response_length
 from meshbot.utils.text_utils import truncate_by_sentences
+from meshbot.utils.localize import i18n
 
 logger = logging.getLogger(__name__)
 
@@ -32,14 +33,14 @@ class MessageProcessor:
     def analyze_packet(self, packet: Dict[str, Any]) -> Optional[Tuple]:
         """解析数据包"""
         if 'decoded' not in packet:
-            logger.warning("⚠️ 数据包缺少 'decoded' 字段")
+            logger.warning(i18n.gettext('packet_missing_decoded'))
             return None
 
-        from_id = packet.get('from', '未知')
-        from_id_hex = packet.get('fromId', '未知')
-        to_id = packet.get('to', '未知')
+        from_id = packet.get('from', i18n.gettext('unknown'))
+        from_id_hex = packet.get('fromId', i18n.gettext('unknown'))
+        to_id = packet.get('to', i18n.gettext('unknown'))
         decoded = packet['decoded']
-        message_type = decoded.get('portnum', '未知类型')
+        message_type = decoded.get('portnum', i18n.gettext('unknown_type'))
 
         if message_type == 'TEXT_MESSAGE_APP':
             # 处理所有文本消息，包括私聊和群发
@@ -126,14 +127,14 @@ class MessageProcessor:
         """判断是否应该回复群发消息"""
         # 如果明确提及，总是回复
         if is_mention:
-            logger.info("🎯 检测到提及，将回复群发消息")
+            logger.info(i18n.gettext('mention_detected'))
             return True
             
         # 检查消息是否包含问题或请求
         question_indicators = ["吗？", "?", "怎么办", "如何", "为什么", "什么", "怎样", "能不能", "是否可以"]
         for indicator in question_indicators:
             if indicator in text:
-                logger.info("❓ 检测到问题，将回复群发消息")
+                logger.info(i18n.gettext('question_detected'))
                 return True
                 
         # 对于其他群发消息，可以根据配置决定是否回复
@@ -142,7 +143,7 @@ class MessageProcessor:
             response_keywords = ["帮助", "求助", "问题", "请教", "建议", "意见"]
             for keyword in response_keywords:
                 if keyword in text:
-                    logger.info(f"🔍 检测到关键词 '{keyword}'，将回复群发消息")
+                    logger.info(i18n.gettext('keyword_detected', keyword=keyword))
                     return True
                     
         return False
@@ -156,11 +157,11 @@ class MessageProcessor:
             long_name = node_info.get('user', {}).get('longName', '')
             if long_name:
                 logger.info(
-                    f"👤 节点 {from_id_hex} 名称: {long_name}"
+                    i18n.gettext('node_name', node_id=from_id_hex, long_name=long_name)
                 )
             return long_name
         else:
-            logger.warning(f"⚠️ 节点 {from_id_hex} 信息非字典类型")
+            logger.warning(i18n.gettext('node_info_type_warning', node_id=from_id_hex))
             return ""
 
     def _log_message_reception(
@@ -179,16 +180,16 @@ class MessageProcessor:
         
         # 判断消息类型并添加相应标识
         is_broadcast = self._is_broadcast_message(to_id)
-        message_type = "📢 群发" if is_broadcast else "📩 私聊"
+        message_type = i18n.gettext('broadcast_message_received') if is_broadcast else i18n.gettext('private_message_received')
         
         logger.info(
-            f"{message_type} 来自 {from_id}{name_info}: {short_text}"
+            message_type.format(from_id=from_id, name_info=name_info, short_text=short_text)
         )
         
         if rssi is not None:
-            logger.debug(f"📶 RSSI: {rssi} dBm")
+            logger.debug(i18n.gettext('rssi_debug', rssi=rssi))
         if snr is not None:
-            logger.debug(f"🔊 SNR: {snr} dB")
+            logger.debug(i18n.gettext('snr_debug', snr=snr))
 
     def _process_position_message(self, packet: Dict[str, Any], from_id: str) -> None:
         """处理位置消息"""
@@ -202,7 +203,7 @@ class MessageProcessor:
 
         # 始终记录非敏感信息
         logger.info(
-            f"📍 收到 {from_id} 的位置信息"
+            i18n.gettext('position_received', from_id=from_id)
         )
 
         # 仅在 DEBUG 模式下记录详细坐标
@@ -210,7 +211,7 @@ class MessageProcessor:
             lat = pos['latitude']
             lon = pos['longitude']
             logger.debug(
-                f"详细位置: {lat:.6f}, {lon:.6f}"
+                i18n.gettext('detailed_position', lat=lat, lon=lon)
             )
 
     def _parse_from_and_position(
@@ -221,7 +222,7 @@ class MessageProcessor:
         result = {}
         from_id_int = packet.get('from')
         if not from_id_int:
-            logger.error("❌ 缺少 'from' 字段")
+            logger.error(i18n.gettext('missing_from_field'))
             return None
 
         node_hex = f"{from_id_int:08x}".lower()
@@ -245,7 +246,7 @@ class MessageProcessor:
     ) -> Optional[Dict[str, Any]]:
         """提取位置字段"""
         if not position:
-            logger.warning("⚠️ 位置数据为空")
+            logger.warning(i18n.gettext('position_data_empty'))
             return None
 
         lat = position.get('latitude')
@@ -253,7 +254,7 @@ class MessageProcessor:
         alt = position.get('altitude')
 
         if lat is None or lon is None:
-            logger.error("❌ 缺失经纬度")
+            logger.error(i18n.gettext('missing_lat_lon'))
             return None
 
         return {'latitude': lat, 'longitude': lon, 'altitude': alt}
@@ -265,7 +266,7 @@ class MessageProcessor:
         try:
             # 对于群发消息，检查是否需要回复
             if is_broadcast and not self._should_respond_to_broadcast(text, long_name, is_mention):
-                logger.info("⏭️  忽略群发消息（未触发回复条件）")
+                logger.info(i18n.gettext('ignore_broadcast'))
                 return
                 
             # 构建系统提示（针对群发消息添加额外上下文）
@@ -286,9 +287,9 @@ class MessageProcessor:
                 # 为群发消息添加前缀标识
                 if is_broadcast:
                     response = f"💬 {response}"
-                    logger.info(f"🤖 AI 回复群发消息: {response}")
+                    logger.info(i18n.gettext('ai_broadcast_response', response=response))
                 else:
-                    logger.info(f"🤖 AI 回复私聊消息: {response}")
+                    logger.info(i18n.gettext('ai_private_response', response=response))
 
                 # 基于 UTF-8 字节长度判断是否需要分片
                 try:
@@ -314,24 +315,23 @@ class MessageProcessor:
                         # 私聊消息回复给发送者
                         interface.sendText(response, from_id)
             else:
-                error_msg = result.get('error', '未知错误')
+                error_msg = result.get('error', i18n.gettext('unknown_error'))
                 logger.error(
-                    f"❌ AI 处理失败: {error_msg}"
+                    i18n.gettext('ai_processing_failed', error_msg=error_msg)
                 )
                 # 错误消息也根据消息类型发送
+                error_response = i18n.gettext('processing_failed', error_msg=error_msg)
                 if is_broadcast:
-                    interface.sendText(f"❌ 处理失败: {error_msg}")
+                    interface.sendText(error_response)
                 else:
-                    interface.sendText(
-                        f"❌ 处理失败: {error_msg}",
-                        from_id
-                    )
+                    interface.sendText(error_response, from_id)
         except Exception as e:
-            logger.error(f"❌ 消息处理异常: {e}")
+            logger.error(i18n.gettext('message_processing_error', error=e))
+            error_response = i18n.gettext('processing_exception')
             if is_broadcast:
-                interface.sendText("❌ 处理异常，请稍后重试")
+                interface.sendText(error_response)
             else:
-                interface.sendText("❌ 处理异常，请稍后重试", from_id)
+                interface.sendText(error_response, from_id)
 
     def _build_contextual_prompt(self, base_prompt: str, is_broadcast: bool, sender_name: str) -> str:
         """构建上下文相关的系统提示"""
@@ -356,8 +356,9 @@ class MessageProcessor:
         """更新群发消息设置"""
         if enabled is not None:
             self.broadcast_enabled = enabled
-            logger.info(f"🔄 群发消息处理: {'启用' if enabled else '禁用'}")
+            status = i18n.gettext('enabled') if enabled else i18n.gettext('disabled')
+            logger.info(i18n.gettext('broadcast_settings_updated', status=status))
             
         if keywords is not None:
             self.broadcast_keywords = keywords
-            logger.info(f"🔄 更新群发触发关键词: {keywords}")
+            logger.info(i18n.gettext('keywords_updated', keywords=keywords))

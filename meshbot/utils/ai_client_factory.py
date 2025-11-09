@@ -3,6 +3,7 @@ import importlib
 import logging
 
 from meshbot.config.config_loader import get_ai_client_config, get_platform
+from meshbot.utils.localize import i18n
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +24,9 @@ def create_ai_client(platform: str = ""):
     # 获取配置，优先使用传入的 platform，否则使用默认 PLATFORM
     config = ai_client_config.get(platform) or ai_client_config.get(default_platform)
     if not config:
-        logger.error(f"未找到平台 '{platform}' 或默认平台 '{default_platform}' 的配置")
+        logger.error(i18n.gettext('platform_not_found', platform = platform, default_platform = default_platform))
         # 回退到内置 Ollama 配置
-        logger.info("回退到内置 Ollama 客户端")
+        logger.info(i18n.gettext('back_to_ollama'))
         from api.ollama_api import AsyncOllamaChatClient
         return AsyncOllamaChatClient(default_model="qwen2.5:7b")
 
@@ -38,16 +39,16 @@ def create_ai_client(platform: str = ""):
         kwargs = config["kwargs"].copy()
 
         # 创建实例
-        logger.info(f"🤖 创建 {platform} AI 客户端")
+        logger.info(i18n.gettext('ai_client_created', platform = platform))
         return client_class(**kwargs)
 
     except (ImportError, AttributeError, KeyError) as e:
         logger.error(
-            f"无法创建 AI 客户端 ({platform}): {type(e).__name__} - {e}，回退到 Ollama"
+            i18n.gettext('ai_client_creation_failed', platform = platform, error_type = type(e).__name__, error_msg = e)
         )
         try:
             from api.ollama_api import AsyncOllamaChatClient
             return AsyncOllamaChatClient(default_model="qwen2.5:7b")
         except ImportError:
-            logger.critical("回退失败：无法导入 AsyncOllamaChatClient")
-            raise RuntimeError("AI 客户端初始化失败，且无法回退到 Ollama")
+            logger.critical(i18n.gettext('fallback_failed'))
+            raise RuntimeError(i18n.gettext('ai_client_init_failed'))
